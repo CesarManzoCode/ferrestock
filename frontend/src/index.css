@@ -1,0 +1,59 @@
+/* ── Variables globales FerreStock ─────────────────────────────────────── */
+:root {
+  --naranja:         #E07B00;
+  --naranja-hover:   #C46A00;
+  --naranja-light:   #FFF3E0;
+  --naranja-border:  #F0A040;
+
+  --azul:            #1A4F8A;
+  --azul-hover:      #153F6E;
+  --azul-light:      #EEF3FA;
+  --azul-border:     #3A6EA8;
+
+  --fondo:           #F4F1EC;
+  --superficie:      #FFFFFF;
+  --superficie-alt:  #FAFAF8;
+
+  --texto:           #1A1A1A;
+  --texto-sec:       #6B6B6B;
+  --texto-inv:       #FFFFFF;
+
+  --borde:           #D9D9D9;
+  --borde-fuerte:    #B0B0B0;
+
+  --exito:           #2E7D32;
+  --exito-light:     #E8F5E9;
+  --alerta:          #C62828;
+  --alerta-light:    #FFEBEE;
+  --advertencia:     #E07B00;
+  --advertencia-light: #FFF3E0;
+
+  --sidebar-w:       240px;
+  --sidebar-w-col:   64px;
+  --topbar-h:        64px;
+
+  --radio:           8px;
+  --radio-sm:        6px;
+  --radio-xs:        4px;
+
+  --sombra:          0 2px 8px rgba(0,0,0,0.08);
+  --sombra-md:       0 4px 16px rgba(0,0,0,0.12);
+  --transition:      0.18s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  line-height: 1.5;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--borde-fuerte); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--azul-border); }

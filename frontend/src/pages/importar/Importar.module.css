@@ -1,0 +1,182 @@
+.page { display: flex; flex-direction: column; gap: 20px; }
+.body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Indicador de pasos ──────────────────────────────────────────────────── */
+.pasos {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.pasoBadge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid var(--borde);
+  color: var(--texto-sec);
+  font-size: 12px; font-weight: 600;
+  transition: all var(--transition);
+}
+.pasoActivo {
+  background: var(--naranja);
+  border-color: var(--naranja);
+  color: white;
+}
+.pasoDone {
+  background: var(--exito-light);
+  border-color: var(--exito);
+  color: var(--exito);
+}
+.pasoNum {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: currentColor;
+  color: white;
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pasoActivo .pasoNum { background: rgba(255,255,255,0.3); }
+.pasoDone .pasoNum   { background: var(--exito); }
+.pasoLabel { white-space: nowrap; }
+
+/* ── Dropzone ────────────────────────────────────────────────────────────── */
+.pasoSubir { display: flex; flex-direction: column; gap: 20px; }
+.dropzone {
+  border: 2.5px dashed var(--borde);
+  border-radius: var(--radio);
+  padding: 60px 40px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px; text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  background: var(--fondo);
+}
+.dropzone:hover, .dropzoneActive {
+  border-color: var(--naranja);
+  background: var(--naranja-light);
+}
+.dropIcon { color: var(--naranja); }
+.dropText { font-size: 16px; font-weight: 600; color: var(--texto); }
+.dropSub  { font-size: 14px; color: var(--texto-sec); }
+.dropFormato { font-size: 12px; color: var(--texto-sec); }
+.inputOculto { display: none; }
+
+.filaInicio { display: flex; flex-direction: column; gap: 6px; }
+.filaLabel  { font-size: 14px; font-weight: 600; color: var(--texto); }
+.filaSub    { font-size: 13px; color: var(--texto-sec); }
+
+/* ── Mapeo ───────────────────────────────────────────────────────────────── */
+.pasoMapeo { display: flex; flex-direction: column; gap: 20px; }
+.filaInicioBox {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--azul-light);
+  border-radius: var(--radio-sm);
+  border-left: 3px solid var(--azul);
+}
+.filaInicioLabel { font-size: 13px; font-weight: 600; color: var(--azul); }
+.filaInicioInput {
+  width: 64px; padding: 6px 10px;
+  border: 1.5px solid var(--azul-border);
+  border-radius: var(--radio-xs);
+  font-size: 14px; font-family: inherit;
+  text-align: center;
+}
+.filaInicioInput:focus { outline: none; border-color: var(--naranja); }
+
+.mapeoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.mapeoCard {
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--superficie);
+  transition: border-color var(--transition);
+}
+.mapeoCardOk { border-color: var(--exito); background: var(--exito-light); }
+.mapeoCardHeader {
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.mapeoNombre { font-size: 13px; font-weight: 700; color: var(--texto); }
+.iconOk   { color: var(--exito); }
+.iconPend { color: var(--alerta); }
+.mapeoSelect {
+  width: 100%; padding: 7px 10px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-xs);
+  font-size: 13px; font-family: inherit;
+  background: var(--superficie);
+  cursor: pointer;
+}
+.mapeoSelect:focus { outline: none; border-color: var(--naranja); }
+
+/* ── Campos extra ────────────────────────────────────────────────────────── */
+.extraSection {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: 16px;
+  background: var(--superficie-alt);
+}
+.extraLabel {
+  font-size: 13px; font-weight: 600; color: var(--texto-sec);
+  margin-bottom: 10px;
+}
+.extraList { display: flex; flex-wrap: wrap; gap: 10px; }
+.extraItem {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; cursor: pointer; user-select: none;
+  padding: 6px 12px;
+  border: 1.5px solid var(--borde);
+  border-radius: 20px;
+  background: var(--superficie);
+  transition: all var(--transition);
+}
+.extraItem:hover { border-color: var(--naranja); color: var(--naranja); }
+.extraCheck { cursor: pointer; accent-color: var(--naranja); }
+
+/* ── Preview ─────────────────────────────────────────────────────────────── */
+.previewSection { display: flex; flex-direction: column; gap: 8px; }
+.previewLabel { font-size: 12px; font-weight: 700; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 0.5px; }
+.previewTable { overflow-x: auto; border: 1px solid var(--borde); border-radius: var(--radio-sm); }
+.previewTable table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.previewTable thead { background: var(--azul-light); }
+.previewTable th {
+  padding: 8px 12px; text-align: left;
+  font-size: 11px; font-weight: 700;
+  color: var(--azul); white-space: nowrap;
+}
+.previewTable td {
+  padding: 7px 12px; border-top: 1px solid var(--borde);
+  white-space: nowrap; color: var(--texto-sec);
+}
+
+.formActions { display: flex; justify-content: flex-end; }
+
+/* ── Resultado ───────────────────────────────────────────────────────────── */
+.resultado {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+  padding: 40px 24px; text-align: center;
+}
+.resultadoIcon { color: var(--exito); }
+.resultadoTitulo { font-size: 22px; font-weight: 700; color: var(--texto); }
+.resultadoSub { font-size: 14px; color: var(--texto-sec); max-width: 400px; }
+.erroresBox {
+  background: var(--alerta-light);
+  border: 1px solid var(--alerta);
+  border-radius: var(--radio-sm);
+  padding: 14px 18px;
+  text-align: left; width: 100%; max-width: 480px;
+}
+.erroresLabel { font-size: 13px; font-weight: 700; color: var(--alerta); margin-bottom: 8px; }
+.erroresList { font-size: 12px; color: var(--alerta); list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 480px) {
+  .body { padding: 16px; }
+  .dropzone { padding: 40px 20px; }
+  .mapeoGrid { grid-template-columns: 1fr 1fr; }
+}

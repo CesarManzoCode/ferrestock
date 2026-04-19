@@ -1,0 +1,197 @@
+/* ── Button ──────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  border-radius: var(--radio-sm);
+  font-weight: 600;
+  transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
+  white-space: nowrap;
+  line-height: 1;
+}
+.btn:active:not(:disabled) { transform: scale(0.97); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn_primary {
+  background: var(--naranja);
+  color: var(--texto-inv);
+  box-shadow: 0 1px 4px rgba(224,123,0,0.25);
+}
+.btn_primary:hover:not(:disabled) { background: var(--naranja-hover); box-shadow: 0 2px 8px rgba(224,123,0,0.35); }
+
+.btn_secondary {
+  background: var(--azul);
+  color: var(--texto-inv);
+}
+.btn_secondary:hover:not(:disabled) { background: var(--azul-hover); }
+
+.btn_outline {
+  background: transparent;
+  color: var(--texto);
+  border: 1.5px solid var(--borde);
+}
+.btn_outline:hover:not(:disabled) { border-color: var(--azul); color: var(--azul); background: var(--azul-light); }
+
+.btn_danger {
+  background: transparent;
+  color: var(--alerta);
+  border: 1.5px solid var(--alerta);
+}
+.btn_danger:hover:not(:disabled) { background: var(--alerta-light); }
+
+.btn_ghost {
+  background: transparent;
+  color: var(--texto-sec);
+  border: none;
+}
+.btn_ghost:hover:not(:disabled) { background: var(--azul-light); color: var(--azul); }
+
+/* sizes */
+.btn_sm { font-size: 12px; padding: 6px 12px; }
+.btn_md { font-size: 14px; padding: 9px 18px; }
+.btn_lg { font-size: 15px; padding: 12px 24px; }
+
+/* ── Input ───────────────────────────────────────────────────────────────── */
+.inputWrapper { display: flex; flex-direction: column; gap: 5px; }
+.label { font-size: 13px; font-weight: 600; color: var(--texto); }
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--superficie);
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: 9px 12px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.inputBox:focus-within {
+  border-color: var(--naranja);
+  box-shadow: 0 0 0 3px rgba(224,123,0,0.12);
+}
+.inputError { border-color: var(--alerta) !important; }
+.inputIcon { color: var(--texto-sec); flex-shrink: 0; }
+.input {
+  border: none; background: transparent; outline: none;
+  font-size: 14px; color: var(--texto); width: 100%;
+}
+.input::placeholder { color: var(--texto-sec); }
+.select {
+  width: 100%; font-size: 14px; color: var(--texto);
+  border: none; background: transparent; outline: none; cursor: pointer;
+  padding: 0;
+}
+.errorMsg { font-size: 12px; color: var(--alerta); }
+
+/* ── Badge ───────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge_ok      { background: var(--exito-light);      color: var(--exito); }
+.badge_bajo    { background: var(--alerta-light);     color: var(--alerta); }
+.badge_medio   { background: var(--advertencia-light);color: var(--advertencia); }
+.badge_default { background: var(--azul-light);       color: var(--azul); }
+.badge_gris    { background: #F0F0F0;                 color: var(--texto-sec); }
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  border: 1px solid var(--borde);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+.card_naranja { border-top: 3px solid var(--naranja); }
+.card_azul    { border-top: 3px solid var(--azul); }
+.card_exito   { border-top: 3px solid var(--exito); }
+.card_alerta  { border-top: 3px solid var(--alerta); }
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--borde);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cardTitle { font-size: 15px; font-weight: 700; color: var(--texto); }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease;
+}
+.modal {
+  background: var(--superficie);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-md);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.18s ease;
+  border-top: 3px solid var(--naranja);
+}
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--borde);
+}
+.modalTitle { font-size: 16px; font-weight: 700; }
+.modalClose {
+  background: none; border: none; font-size: 18px;
+  color: var(--texto-sec); cursor: pointer; line-height: 1;
+  padding: 4px; border-radius: var(--radio-xs);
+  transition: background var(--transition), color var(--transition);
+}
+.modalClose:hover { background: var(--alerta-light); color: var(--alerta); }
+.modalBody { padding: 24px; overflow-y: auto; flex: 1; }
+
+/* ── Alert ───────────────────────────────────────────────────────────────── */
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--radio-sm);
+  font-size: 13px;
+  font-weight: 500;
+  border-left: 3px solid;
+}
+.alert_error   { background: var(--alerta-light);     color: var(--alerta);     border-color: var(--alerta); }
+.alert_success { background: var(--exito-light);      color: var(--exito);      border-color: var(--exito); }
+.alert_warning { background: var(--advertencia-light);color: var(--advertencia);border-color: var(--advertencia); }
+
+/* ── Empty ───────────────────────────────────────────────────────────────── */
+.empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 24px; gap: 10px; text-align: center;
+}
+.emptyIcon { color: var(--borde-fuerte); }
+.emptyTitle { font-size: 16px; font-weight: 600; color: var(--texto-sec); }
+.emptyDesc  { font-size: 14px; color: var(--texto-sec); max-width: 320px; }
+
+/* ── Spinner ─────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

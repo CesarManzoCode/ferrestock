@@ -1,0 +1,156 @@
+.page { display: flex; flex-direction: column; gap: 20px; }
+.loadingCenter {
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px;
+}
+
+/* ── Tabla ───────────────────────────────────────────────────────────────── */
+.tableWrapper { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table thead { background: var(--azul-light); }
+.table thead th {
+  text-align: left; padding: 11px 16px;
+  font-size: 11px; font-weight: 700;
+  color: var(--azul); text-transform: uppercase;
+  letter-spacing: 0.6px; white-space: nowrap;
+  border-bottom: 2px solid var(--azul-border);
+}
+.table tbody tr {
+  border-bottom: 1px solid #F0EDE8;
+  transition: background var(--transition);
+}
+.table tbody tr:nth-child(even) { background: var(--superficie-alt); }
+.table tbody tr:hover { background: var(--naranja-light); }
+.table tbody td { padding: 12px 16px; font-size: 14px; }
+
+.tdFolio { font-weight: 700; color: var(--azul); font-size: 13px; }
+.tdTotal { font-weight: 700; color: var(--texto); white-space: nowrap; }
+.tdSec   { color: var(--texto-sec); font-size: 13px; }
+.tdActions { white-space: nowrap; text-align: right; }
+.actionBtn {
+  background: none; border: none; cursor: pointer;
+  color: var(--texto-sec); padding: 6px;
+  border-radius: var(--radio-xs);
+  transition: background var(--transition), color var(--transition);
+  display: inline-flex; align-items: center;
+}
+.actionBtn:hover { background: var(--azul-light); color: var(--azul); }
+.actionBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.actionDanger:hover { background: var(--alerta-light); color: var(--alerta); }
+
+/* ── Formulario ──────────────────────────────────────────────────────────── */
+.form { display: flex; flex-direction: column; gap: 20px; }
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.seccion { display: flex; flex-direction: column; gap: 10px; }
+.seccionLabel {
+  font-size: 12px; font-weight: 700;
+  color: var(--azul); text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--naranja-light);
+}
+.formActions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+
+/* ── Buscador de productos ───────────────────────────────────────────────── */
+.buscadorWrap { position: relative; }
+.buscadorInput {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--fondo);
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: 8px 12px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.buscadorInput:focus-within {
+  border-color: var(--naranja);
+  box-shadow: 0 0 0 3px rgba(224,123,0,0.1);
+  background: var(--superficie);
+}
+.searchIcon { color: var(--texto-sec); flex-shrink: 0; }
+.searchInput {
+  border: none; background: transparent; outline: none;
+  font-size: 14px; color: var(--texto); width: 100%;
+  font-family: inherit;
+}
+.searchInput::placeholder { color: var(--texto-sec); }
+
+.dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--superficie);
+  border: 1.5px solid var(--naranja-border);
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra-md);
+  z-index: 50;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.dropdownItem {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; cursor: pointer;
+  transition: background var(--transition);
+  border-bottom: 1px solid var(--borde);
+  gap: 12px;
+}
+.dropdownItem:last-child { border-bottom: none; }
+.dropdownItem:hover { background: var(--naranja-light); }
+.dropNombre { font-size: 14px; font-weight: 500; }
+.dropPrecio { font-size: 13px; font-weight: 700; color: var(--azul); white-space: nowrap; }
+
+/* ── Tabla de items ──────────────────────────────────────────────────────── */
+.itemsTable {
+  width: 100%; border-collapse: collapse;
+  border: 1px solid var(--borde); border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+.itemsTable thead { background: var(--azul-light); }
+.itemsTable thead th {
+  text-align: left; padding: 8px 12px;
+  font-size: 11px; font-weight: 700;
+  color: var(--azul); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.itemsTable tbody tr { border-bottom: 1px solid var(--borde); }
+.itemsTable tbody tr:last-child { border-bottom: none; }
+.itemsTable tbody td { padding: 8px 12px; font-size: 13px; }
+.itemNombre { font-weight: 500; max-width: 200px; }
+.itemInput {
+  width: 80px; padding: 5px 8px;
+  border: 1.5px solid var(--borde); border-radius: var(--radio-xs);
+  font-size: 13px; font-family: inherit;
+  transition: border-color var(--transition);
+}
+.itemInput:focus { outline: none; border-color: var(--naranja); }
+.itemSubtotal { font-weight: 700; color: var(--azul); white-space: nowrap; }
+.removeBtn {
+  background: none; border: none; cursor: pointer;
+  color: var(--texto-sec); padding: 4px;
+  border-radius: var(--radio-xs);
+  display: flex; align-items: center;
+  transition: color var(--transition), background var(--transition);
+}
+.removeBtn:hover { color: var(--alerta); background: var(--alerta-light); }
+.emptyItems {
+  font-size: 13px; color: var(--texto-sec);
+  text-align: center; padding: 20px;
+  border: 1.5px dashed var(--borde); border-radius: var(--radio-sm);
+}
+
+/* ── Total ───────────────────────────────────────────────────────────────── */
+.totalRow {
+  display: flex; justify-content: flex-end; align-items: center; gap: 16px;
+  padding: 12px 16px;
+  background: var(--azul);
+  border-radius: var(--radio-sm);
+  border-left: 4px solid var(--naranja);
+}
+.totalLabel { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.totalValue { font-size: 22px; font-weight: 800; color: white; }
+
+/* ── Confirmar eliminar ───────────────────────────────────────────────────── */
+.confirmDelete { display: flex; flex-direction: column; gap: 16px; font-size: 14px; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .hideM { display: none; }
+  .formRow { grid-template-columns: 1fr; }
+}
