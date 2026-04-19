@@ -14,6 +14,8 @@ class CotizacionCreate(BaseModel):
     cliente_telefono: Optional[str] = None
     cliente_email: Optional[str] = None
     notas: Optional[str] = None
+    # nombre_campo del CampoConfig con rol "precio" a usar, None = precio base
+    campo_precio: Optional[str] = None
     items: list[CotizacionItemInput]
 
 
@@ -24,7 +26,6 @@ class CotizacionItemRead(BaseModel):
     precio_unitario: float
     cantidad: float
     subtotal: float
-
     model_config = {"from_attributes": True}
 
 
@@ -37,6 +38,6 @@ class CotizacionRead(BaseModel):
     total: float
     estado: str
     pdf_path: Optional[str]
+    campo_precio_usado: Optional[str] = None
     items: list[CotizacionItemRead] = []
-
     model_config = {"from_attributes": True}

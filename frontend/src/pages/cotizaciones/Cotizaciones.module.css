@@ -178,3 +178,17 @@
   border-color: var(--naranja);
 }
 .actionBtnPdf:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Selector de tipo de precio ──────────────────────────────────────────── */
+.precioLabel { font-size: 13px; font-weight: 600; color: var(--texto); display: block; margin-bottom: 5px; }
+.precioSelect {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--naranja-border);
+  border-radius: var(--radio-sm);
+  font-size: 14px; font-family: inherit;
+  background: var(--naranja-light); cursor: pointer;
+  transition: border-color var(--transition);
+  color: var(--texto);
+}
+.precioSelect:focus { outline: none; border-color: var(--naranja); box-shadow: 0 0 0 3px rgba(224,123,0,0.1); }
+.precioHint { font-size: 12px; color: var(--texto-sec); margin-top: 5px; line-height: 1.4; }

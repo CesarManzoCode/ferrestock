@@ -180,3 +180,21 @@
   .dropzone { padding: 40px 20px; }
   .mapeoGrid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Sección label del mapeo ─────────────────────────────────────────────── */
+.mapeoSectionLabel {
+  font-size: 12px; font-weight: 700;
+  color: var(--texto); text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.mapeoSectionOpc { font-weight: 400; color: var(--texto-sec); text-transform: none; letter-spacing: 0; }
+
+/* ── Rol tags en campos personalizados del mapeo ─────────────────────────── */
+.mapeoRolTag {
+  font-size: 10px; font-weight: 700;
+  padding: 1px 7px; border-radius: 20px;
+  white-space: nowrap;
+}
+.rolNaranja { background: var(--naranja-light); color: var(--naranja); border: 1px solid var(--naranja-border); }
+.rolAzul    { background: var(--azul-light);    color: var(--azul);    border: 1px solid var(--azul-border); }
+.rolGris    { background: var(--fondo);         color: var(--texto-sec);border: 1px solid var(--borde); }

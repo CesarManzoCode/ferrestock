@@ -1,0 +1,95 @@
+.page { display: flex; flex-direction: column; gap: 16px; }
+.loadingCenter { display: flex; align-items: center; justify-content: center; padding: 60px; }
+
+/* ── Banner límite ───────────────────────────────────────────────────────── */
+.limiteBanner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--azul-light);
+  border: 1.5px solid var(--azul-border);
+  border-radius: var(--radio-sm);
+  font-size: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.limiteAlcanzado {
+  background: var(--advertencia-light);
+  border-color: var(--naranja-border);
+}
+.limiteInfo { display: flex; align-items: center; gap: 8px; color: var(--azul); font-weight: 500; }
+.limiteAlcanzado .limiteInfo { color: var(--naranja); }
+.limiteTexto { font-size: 13px; color: var(--naranja); font-weight: 500; }
+
+/* ── Tabla ───────────────────────────────────────────────────────────────── */
+.tableWrapper { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table thead { background: var(--azul-light); }
+.table thead th {
+  text-align: left; padding: 11px 16px;
+  font-size: 11px; font-weight: 700;
+  color: var(--azul); text-transform: uppercase; letter-spacing: 0.6px;
+  border-bottom: 2px solid var(--azul-border);
+}
+.table tbody tr {
+  border-bottom: 1px solid #F0EDE8;
+  transition: background var(--transition);
+}
+.table tbody tr:nth-child(even) { background: var(--superficie-alt); }
+.table tbody tr:hover { background: var(--naranja-light); }
+.table tbody td { padding: 12px 16px; font-size: 14px; }
+.rowInactivo { opacity: 0.5; }
+.tdSec { color: var(--texto-sec); font-size: 13px; }
+
+/* ── Usuario cell ────────────────────────────────────────────────────────── */
+.usuarioCell { display: flex; align-items: center; gap: 10px; }
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--azul-light);
+  color: var(--azul);
+  font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--azul-border);
+}
+.avatarAdmin { background: var(--naranja-light); color: var(--naranja); border-color: var(--naranja-border); }
+.usuarioNombre { font-weight: 600; font-size: 14px; }
+.tuTag {
+  font-size: 10px; font-weight: 700;
+  background: var(--azul); color: white;
+  padding: 1px 6px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ── Rol ─────────────────────────────────────────────────────────────────── */
+.rolCell { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500; }
+.iconAdmin    { color: var(--naranja); }
+.iconEmpleado { color: var(--azul); }
+
+/* ── Editar ──────────────────────────────────────────────────────────────── */
+.editBtn {
+  background: var(--azul-light); border: 1.5px solid var(--azul-border);
+  color: var(--azul); padding: 5px 12px;
+  border-radius: var(--radio-xs); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all var(--transition); font-family: inherit;
+}
+.editBtn:hover { background: var(--azul); color: white; }
+
+/* ── Formulario ──────────────────────────────────────────────────────────── */
+.form { display: flex; flex-direction: column; gap: 16px; }
+.formActions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+.inputWrapper { display: flex; flex-direction: column; gap: 5px; }
+.label { font-size: 13px; font-weight: 600; color: var(--texto); }
+.hint { font-size: 12px; color: var(--texto-sec); line-height: 1.4; }
+.select {
+  padding: 9px 12px; border: 1.5px solid var(--borde);
+  border-radius: var(--radio-sm); font-size: 14px; font-family: inherit;
+  background: var(--superficie); cursor: pointer;
+  transition: border-color var(--transition);
+}
+.select:focus { outline: none; border-color: var(--naranja); }
+.valorFijo { font-size: 14px; color: var(--texto-sec); padding: 4px 0; }
+.checkRow {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; cursor: pointer; user-select: none;
+}

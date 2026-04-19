@@ -4,7 +4,7 @@ import {
   Button, Badge, Card, CardHeader, CardTitle,
   Modal, Input, Alert, Empty, Spinner
 } from '../../components/ui/UI'
-import { cotizacionesService, productosService } from '../../services/api'
+import { cotizacionesService, productosService, camposService } from '../../services/api'
 import styles from './Cotizaciones.module.css'
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -82,6 +82,14 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
   const [cliente, setCliente] = useState({ nombre: '', telefono: '' })
   const [notas, setNotas] = useState('')
   const [items, setItems] = useState([])
+  const [campoPrecio, setCampoPrecio] = useState('')   // nombre_campo seleccionado
+  const [camposPrecios, setCamposPrecios] = useState([]) // campos con rol precio
+
+  useEffect(() => {
+    camposService.listar()
+      .then(({ data }) => setCamposPrecios(data.filter((c) => c.rol === 'precio')))
+      .catch(() => {})
+  }, [])
 
   const agregarProducto = (p) => {
     setItems((prev) => {
@@ -114,6 +122,7 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
       cliente_nombre: cliente.nombre || null,
       cliente_telefono: cliente.telefono || null,
       notas: notas || null,
+      campo_precio: campoPrecio || null,
       items: items.map((i) => ({
         ...i,
         precio_unitario: Number(i.precio_unitario),
@@ -142,6 +151,24 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
             onChange={(e) => setCliente((c) => ({ ...c, telefono: e.target.value }))}
           />
         </div>
+        {camposPrecios.length > 0 && (
+          <div>
+            <label className={styles.precioLabel}>Tipo de precio</label>
+            <select
+              className={styles.precioSelect}
+              value={campoPrecio}
+              onChange={(e) => setCampoPrecio(e.target.value)}
+            >
+              <option value="">Precio base (por defecto)</option>
+              {camposPrecios.map((c) => (
+                <option key={c.id} value={c.nombre_campo}>{c.etiqueta}</option>
+              ))}
+            </select>
+            <p className={styles.precioHint}>
+              Si un producto no tiene este precio definido, se usará el precio base.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className={styles.seccion}>
@@ -164,14 +191,14 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
                 <tr key={idx}>
                   <td className={styles.itemNombre}>{item.nombre_producto}</td>
                   <td>
-                    <input type="number" className={styles.itemInput}
-                      value={item.precio_unitario} min="0" step="0.01"
+                    <input type="text" inputMode="decimal" className={styles.itemInput}
+                      value={item.precio_unitario}
                       onChange={(e) => actualizarItem(idx, 'precio_unitario', e.target.value)}
                     />
                   </td>
                   <td>
-                    <input type="number" className={styles.itemInput}
-                      value={item.cantidad} min="1" step="any"
+                    <input type="text" inputMode="decimal" className={styles.itemInput}
+                      value={item.cantidad}
                       onChange={(e) => actualizarItem(idx, 'cantidad', e.target.value)}
                     />
                   </td>

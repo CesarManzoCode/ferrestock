@@ -83,3 +83,26 @@ export const cotizacionesService = {
 }
 
 export default api
+
+// ── Usuarios del tenant ───────────────────────────────────────────────────
+export const usuariosService = {
+  listar:  ()           => api.get('/usuarios'),
+  crear:   (data)       => api.post('/usuarios', data),
+  actualizar: (id, data) => api.patch(`/usuarios/${id}`, data),
+}
+
+// ── Mi cuenta ─────────────────────────────────────────────────────────────
+export const cuentaService = {
+  obtener:             ()     => api.get('/usuarios/mi-cuenta'),
+  actualizarUsuario:   (data) => api.patch('/usuarios/mi-cuenta', data),
+  actualizarNegocio:   (data) => api.patch('/usuarios/mi-cuenta/negocio', data),
+  cambiarPassword:     (data) => api.post('/usuarios/mi-cuenta/cambiar-password', data),
+}
+
+// ── Campos personalizados ─────────────────────────────────────────────────
+export const camposService = {
+  listar:  ()           => api.get('/campos-config'),
+  crear:   (data)       => api.post('/campos-config', data),
+  eliminar:(id)         => api.delete(`/campos-config/${id}`),
+  detalle: (productoId) => api.get(`/productos/${productoId}/detalle`),
+}

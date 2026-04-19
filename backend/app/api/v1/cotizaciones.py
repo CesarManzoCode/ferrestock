@@ -83,15 +83,49 @@ def crear_cotizacion(data: CotizacionCreate, current_user: CurrentUser, session:
             detail="La cotización debe tener al menos un producto",
         )
 
+    # Resolver precios si se especificó un campo_precio
+    precios_campo: dict[int, float] = {}
+    if data.campo_precio:
+        from app.models.producto import Producto as ProdModel
+        # Variantes del nombre_campo para compatibilidad con importaciones anteriores
+        campo_variantes = {
+            data.campo_precio,
+            data.campo_precio.replace("_", " "),
+            data.campo_precio.replace("_", " ").replace("+", "+"),
+        }
+        for item in data.items:
+            if item.producto_id:
+                prod = session.get(ProdModel, item.producto_id)
+                if prod and prod.campos_extra:
+                    # Intentar con el nombre exacto primero, luego variantes
+                    val = None
+                    for variante in campo_variantes:
+                        val = prod.campos_extra.get(variante)
+                        if val is not None:
+                            break
+                    # También buscar case-insensitive como fallback
+                    if val is None:
+                        for k, v in prod.campos_extra.items():
+                            if k.lower().replace(" ", "_") == data.campo_precio.lower():
+                                val = v
+                                break
+                    if val is not None:
+                        try:
+                            precios_campo[item.producto_id] = float(val)
+                        except (ValueError, TypeError):
+                            pass
+
     items_data = []
     total = 0.0
     for item in data.items:
-        subtotal = round(item.precio_unitario * item.cantidad, 2)
+        # Usar precio del campo si existe, si no el precio_unitario del item
+        precio_real = precios_campo.get(item.producto_id, item.precio_unitario)             if item.producto_id else item.precio_unitario
+        subtotal = round(precio_real * item.cantidad, 2)
         total += subtotal
         items_data.append({
             "producto_id": item.producto_id,
             "nombre_producto": item.nombre_producto,
-            "precio_unitario": item.precio_unitario,
+            "precio_unitario": precio_real,
             "cantidad": item.cantidad,
             "subtotal": subtotal,
         })
@@ -104,6 +138,7 @@ def crear_cotizacion(data: CotizacionCreate, current_user: CurrentUser, session:
         notas=data.notas,
         total=round(total, 2),
         estado="borrador",
+        campo_precio_usado=data.campo_precio,
         creado_por_id=current_user.id,
     )
     session.add(cotizacion)

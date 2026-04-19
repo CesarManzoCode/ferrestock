@@ -1,18 +1,18 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, ChevronRight } from 'lucide-react'
 import { Button, Alert, Card, CardHeader, CardTitle, Spinner } from '../../components/ui/UI'
-import { productosService } from '../../services/api'
+import { productosService, camposService } from '../../services/api'
 import styles from './Importar.module.css'
 
 const CAMPOS_FIJOS = ['nombre', 'precio', 'existencias', 'descripcion']
 const CAMPOS_LABEL = {
-  nombre: 'Nombre *',
-  precio: 'Precio *',
+  nombre:      'Nombre *',
+  precio:      'Precio base *',
   existencias: 'Existencias',
   descripcion: 'Descripción',
 }
 
-// Paso 1: Subir archivo
+// ── Paso 1: Subir archivo ─────────────────────────────────────────────────
 function PasoSubir({ onArchivo, cargando }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef(null)
@@ -49,9 +49,7 @@ function PasoSubir({ onArchivo, cargando }) {
         ) : (
           <>
             <FileSpreadsheet size={48} className={styles.dropIcon} />
-            <p className={styles.dropText}>
-              Arrastra tu lista de precios en Excel aquí
-            </p>
+            <p className={styles.dropText}>Arrastra tu lista de precios en Excel aquí</p>
             <p className={styles.dropSub}>o haz clic para seleccionar el archivo</p>
             <p className={styles.dropFormato}>Formatos aceptados: .xlsx, .xls</p>
           </>
@@ -64,13 +62,10 @@ function PasoSubir({ onArchivo, cargando }) {
           onChange={(e) => procesar(e.target.files[0])}
         />
       </div>
-
       <div className={styles.filaInicio}>
-        <p className={styles.filaLabel}>
-          ¿Tu lista de precios tiene encabezados en otra fila?
-        </p>
+        <p className={styles.filaLabel}>¿Tu lista de precios tiene encabezados en otra fila?</p>
         <p className={styles.filaSub}>
-          Si el archivo tiene datos antes del encabezado (como fecha o logo), 
+          Si el archivo tiene datos antes del encabezado (como fecha o logo),
           indica desde qué fila empiezan los títulos de columna.
         </p>
       </div>
@@ -78,15 +73,28 @@ function PasoSubir({ onArchivo, cargando }) {
   )
 }
 
-// Paso 2: Mapeo de columnas
+// ── Paso 2: Mapeo de columnas ─────────────────────────────────────────────
 function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila, onConfirmar, cargando }) {
   const [mapeo, setMapeo] = useState(mapeoSugerido)
-  const [camposExtra, setCamposExtra] = useState([])
+  // mapeo de campos personalizados: { nombre_campo: columna_excel | '' }
+  const [mapeoPersonalizado, setMapeoPersonalizado] = useState({})
+  const [camposPersonalizados, setCamposPersonalizados] = useState([])
+
+  useEffect(() => {
+    camposService.listar()
+      .then(({ data }) => {
+        setCamposPersonalizados(data)
+        // Inicializar mapeo vacío
+        const init = {}
+        data.forEach((c) => { init[c.nombre_campo] = '' })
+        setMapeoPersonalizado(init)
+      })
+      .catch(() => {})
+  }, [])
 
   const setMapeoCampo = (campo, columna) => {
     setMapeo((prev) => {
       const nuevo = { ...prev }
-      // quitar si ya estaba asignado a otra columna
       Object.keys(nuevo).forEach((col) => {
         if (nuevo[col] === campo) delete nuevo[col]
       })
@@ -98,20 +106,34 @@ function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila
   const getMapeadoEn = (campo) =>
     Object.entries(mapeo).find(([, v]) => v === campo)?.[0] || ''
 
-  const toggleCampoExtra = (col) => {
-    setCamposExtra((prev) =>
-      prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col]
-    )
-  }
-
-  // Columnas no asignadas a ningún campo fijo
-  const sinAsignar = columnas.filter(
-    (col) => !mapeo[col] || !CAMPOS_FIJOS.includes(mapeo[col])
+  // Columnas ya usadas en campos fijos
+  const columnasUsadasFijas = new Set(Object.keys(mapeo))
+  // Columnas usadas en campos personalizados
+  const columnasUsadasPersonalizadas = new Set(
+    Object.values(mapeoPersonalizado).filter(Boolean)
   )
 
   const nombreOk = !!getMapeadoEn('nombre')
   const precioOk = !!getMapeadoEn('precio')
   const listo = nombreOk && precioOk
+
+  const handleConfirmar = () => {
+    // Construir mapeo final: campos fijos + personalizados mapeados
+    const mapeoFinal = { ...mapeo }
+    const camposExtraKeys = []
+
+    Object.entries(mapeoPersonalizado).forEach(([nombre_campo, columna]) => {
+      if (columna) {
+        mapeoFinal[columna] = nombre_campo
+        camposExtraKeys.push(columna)
+      }
+    })
+
+    onConfirmar(mapeoFinal, camposExtraKeys)
+  }
+
+  const rolLabel = { precio: 'Precio alternativo', codigo: 'Código', info: 'Info' }
+  const rolColor = { precio: styles.rolNaranja, codigo: styles.rolAzul, info: styles.rolGris }
 
   return (
     <div className={styles.pasoMapeo}>
@@ -127,51 +149,72 @@ function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila
         />
       </div>
 
-      {/* Mapeo de campos fijos */}
-      <div className={styles.mapeoGrid}>
-        {CAMPOS_FIJOS.map((campo) => (
-          <div key={campo} className={`${styles.mapeoCard} ${getMapeadoEn(campo) ? styles.mapeoCardOk : ''}`}>
-            <div className={styles.mapeoCardHeader}>
-              <span className={styles.mapeoNombre}>{CAMPOS_LABEL[campo]}</span>
-              {getMapeadoEn(campo)
-                ? <CheckCircle size={16} className={styles.iconOk} />
-                : campo === 'nombre' || campo === 'precio'
-                  ? <AlertCircle size={16} className={styles.iconPend} />
-                  : null
-              }
+      {/* Campos fijos */}
+      <div>
+        <p className={styles.mapeoSectionLabel}>Campos principales</p>
+        <div className={styles.mapeoGrid}>
+          {CAMPOS_FIJOS.map((campo) => (
+            <div key={campo} className={`${styles.mapeoCard} ${getMapeadoEn(campo) ? styles.mapeoCardOk : ''}`}>
+              <div className={styles.mapeoCardHeader}>
+                <span className={styles.mapeoNombre}>{CAMPOS_LABEL[campo]}</span>
+                {getMapeadoEn(campo)
+                  ? <CheckCircle size={16} className={styles.iconOk} />
+                  : (campo === 'nombre' || campo === 'precio')
+                    ? <AlertCircle size={16} className={styles.iconPend} />
+                    : null
+                }
+              </div>
+              <select
+                className={styles.mapeoSelect}
+                value={getMapeadoEn(campo)}
+                onChange={(e) => setMapeoCampo(campo, e.target.value)}
+              >
+                <option value="">— No importar —</option>
+                {columnas.map((col) => (
+                  <option key={col} value={col}>{col}</option>
+                ))}
+              </select>
             </div>
-            <select
-              className={styles.mapeoSelect}
-              value={getMapeadoEn(campo)}
-              onChange={(e) => setMapeoCampo(campo, e.target.value)}
-            >
-              <option value="">— No importar —</option>
-              {columnas.map((col) => (
-                <option key={col} value={col}>{col}</option>
-              ))}
-            </select>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Columnas sin asignar → campos extra */}
-      {sinAsignar.length > 0 && (
-        <div className={styles.extraSection}>
-          <p className={styles.extraLabel}>
-            Columnas adicionales — márcalas si quieres importarlas como campos extra:
-          </p>
-          <div className={styles.extraList}>
-            {sinAsignar.map((col) => (
-              <label key={col} className={styles.extraItem}>
-                <input
-                  type="checkbox"
-                  checked={camposExtra.includes(col)}
-                  onChange={() => toggleCampoExtra(col)}
-                  className={styles.extraCheck}
-                />
-                <span>{col}</span>
-              </label>
-            ))}
+      {/* Campos personalizados */}
+      {camposPersonalizados.length > 0 && (
+        <div>
+          <p className={styles.mapeoSectionLabel}>Campos personalizados <span className={styles.mapeoSectionOpc}>(opcionales)</span></p>
+          <div className={styles.mapeoGrid}>
+            {camposPersonalizados.map((campo) => {
+              const seleccionada = mapeoPersonalizado[campo.nombre_campo] || ''
+              return (
+                <div
+                  key={campo.id}
+                  className={`${styles.mapeoCard} ${seleccionada ? styles.mapeoCardOk : ''}`}
+                >
+                  <div className={styles.mapeoCardHeader}>
+                    <span className={styles.mapeoNombre}>{campo.etiqueta}</span>
+                    <span className={`${styles.mapeoRolTag} ${rolColor[campo.rol] || styles.rolGris}`}>
+                      {rolLabel[campo.rol] || campo.rol}
+                    </span>
+                  </div>
+                  <select
+                    className={styles.mapeoSelect}
+                    value={seleccionada}
+                    onChange={(e) =>
+                      setMapeoPersonalizado((prev) => ({
+                        ...prev,
+                        [campo.nombre_campo]: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">— No importar —</option>
+                    {columnas.map((col) => (
+                      <option key={col} value={col}>{col}</option>
+                    ))}
+                  </select>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
@@ -183,11 +226,7 @@ function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila
           <div className={styles.previewTable}>
             <table>
               <thead>
-                <tr>
-                  {columnas.map((col) => (
-                    <th key={col}>{col}</th>
-                  ))}
-                </tr>
+                <tr>{columnas.map((col) => <th key={col}>{col}</th>)}</tr>
               </thead>
               <tbody>
                 {preview.map((fila, i) => (
@@ -205,7 +244,7 @@ function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila
 
       {!listo && (
         <Alert variant="warning">
-          Los campos <strong>Nombre</strong> y <strong>Precio</strong> son obligatorios.
+          Los campos <strong>Nombre</strong> y <strong>Precio base</strong> son obligatorios.
           Asígnalos para continuar.
         </Alert>
       )}
@@ -216,7 +255,7 @@ function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila
           icon={ChevronRight}
           loading={cargando}
           disabled={!listo}
-          onClick={() => onConfirmar(mapeo, camposExtra)}
+          onClick={handleConfirmar}
         >
           Importar productos
         </Button>
@@ -225,7 +264,7 @@ function PasoMapeo({ columnas, mapeoSugerido, preview, filaInicio, onCambiarFila
   )
 }
 
-// Paso 3: Resultado
+// ── Paso 3: Resultado ─────────────────────────────────────────────────────
 function PasoResultado({ importados, errores, onNuevaImportacion }) {
   return (
     <div className={styles.resultado}>
@@ -235,21 +274,17 @@ function PasoResultado({ importados, errores, onNuevaImportacion }) {
         Se importaron <strong>{importados}</strong> producto(s) correctamente.
         {errores.length > 0 && ` ${errores.length} fila(s) no pudieron importarse.`}
       </p>
-
       {errores.length > 0 && (
         <div className={styles.erroresBox}>
           <p className={styles.erroresLabel}>Filas con error:</p>
           <ul className={styles.erroresList}>
             {errores.slice(0, 10).map((e, i) => (
-              <li key={i}>
-                Fila {e.fila}: {e.motivo}
-              </li>
+              <li key={i}>Fila {e.fila}: {e.motivo}</li>
             ))}
             {errores.length > 10 && <li>...y {errores.length - 10} más.</li>}
           </ul>
         </div>
       )}
-
       <Button variant="primary" onClick={onNuevaImportacion} icon={Upload}>
         Importar otro archivo
       </Button>
@@ -259,7 +294,7 @@ function PasoResultado({ importados, errores, onNuevaImportacion }) {
 
 // ── Página principal ──────────────────────────────────────────────────────
 export default function ImportarPage() {
-  const [paso, setPaso] = useState(1)  // 1 | 2 | 3
+  const [paso, setPaso] = useState(1)
   const [archivo, setArchivo] = useState(null)
   const [filaInicio, setFilaInicio] = useState(1)
   const [preview, setPreview] = useState({ columnas: [], mapeo_sugerido: {}, preview: [] })
@@ -289,16 +324,16 @@ export default function ImportarPage() {
     try {
       const { data } = await productosService.previewExcel(archivo, nuevaFila)
       setPreview(data)
-    } catch { /* silencioso */ }
+    } catch { }
     finally { setCargando(false) }
   }
 
-  const handleConfirmar = async (mapeo, camposExtra) => {
+  const handleConfirmar = async (mapeo, camposExtraKeys) => {
     setCargando(true)
     setError(null)
     try {
       const { data } = await productosService.confirmarImportacion(
-        archivo, mapeo, camposExtra, filaInicio
+        archivo, mapeo, camposExtraKeys, filaInicio
       )
       setResultado(data)
       setPaso(3)
@@ -310,12 +345,9 @@ export default function ImportarPage() {
   }
 
   const reiniciar = () => {
-    setPaso(1)
-    setArchivo(null)
-    setFilaInicio(1)
+    setPaso(1); setArchivo(null); setFilaInicio(1)
     setPreview({ columnas: [], mapeo_sugerido: {}, preview: [] })
-    setResultado(null)
-    setError(null)
+    setResultado(null); setError(null)
   }
 
   return (
@@ -323,7 +355,6 @@ export default function ImportarPage() {
       <Card>
         <CardHeader>
           <CardTitle>Importar desde Excel</CardTitle>
-          {/* Indicador de pasos */}
           <div className={styles.pasos}>
             {['Subir archivo', 'Revisar columnas', 'Listo'].map((label, i) => (
               <div
@@ -339,10 +370,7 @@ export default function ImportarPage() {
 
         <div className={styles.body}>
           {error && <Alert variant="error">{error}</Alert>}
-
-          {paso === 1 && (
-            <PasoSubir onArchivo={handleArchivo} cargando={cargando} />
-          )}
+          {paso === 1 && <PasoSubir onArchivo={handleArchivo} cargando={cargando} />}
           {paso === 2 && (
             <PasoMapeo
               columnas={preview.columnas}

@@ -3,7 +3,7 @@
 /* ── KPIs ────────────────────────────────────────────────────────────────── */
 .kpiGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
 }
 .kpiCard {
@@ -14,9 +14,18 @@
   box-shadow: var(--sombra);
   padding: 18px 20px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
+  transition: box-shadow var(--transition);
 }
+
+/* KPI crítico — jerarquía visual fuerte */
+.kpiCardCritico {
+  border-left-color: var(--alerta);
+  box-shadow: 0 2px 12px rgba(198, 40, 40, 0.15);
+  background: #FFFAFA;
+}
+
 .kpiIcon {
   width: 46px; height: 46px;
   border-radius: var(--radio-sm);
@@ -24,16 +33,31 @@
   flex-shrink: 0;
 }
 .kpiNaranja { background: var(--naranja-light); color: var(--naranja); }
-.kpiAlerta  { background: var(--alerta-light);  color: var(--alerta); }
-.kpiLabel { font-size: 12px; color: var(--texto-sec); font-weight: 500; margin-bottom: 2px; }
-.kpiValue { font-size: 26px; font-weight: 700; color: var(--texto); line-height: 1; }
+.kpiRojo    { background: var(--alerta-light);  color: var(--alerta); }
+.kpiVerde   { background: var(--exito-light);   color: var(--exito); }
 
-/* ── Header de la tabla ──────────────────────────────────────────────────── */
+.kpiLabel { font-size: 12px; color: var(--texto-sec); font-weight: 500; margin-bottom: 3px; }
+.kpiValue { font-size: 28px; font-weight: 800; color: var(--texto); line-height: 1; margin-bottom: 3px; }
+.kpiValueCritico { color: var(--alerta); }
+.kpiValueOk      { color: var(--exito); }
+.kpiSub   { font-size: 12px; color: var(--texto-sec); line-height: 1.3; }
+
+/* ── Header de tabla ─────────────────────────────────────────────────────── */
+.headerLeft { display: flex; align-items: center; gap: 12px; }
 .headerRight {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+.contadorPagina {
+  font-size: 13px;
+  color: var(--texto-sec);
+  font-weight: 500;
+  background: var(--fondo);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--borde);
 }
 
 .searchBox {
@@ -61,8 +85,7 @@
 .searchInput::placeholder { color: var(--texto-sec); }
 .searchClear {
   background: none; border: none; cursor: pointer;
-  color: var(--texto-sec); font-size: 13px; padding: 0 2px;
-  line-height: 1;
+  color: var(--texto-sec); font-size: 13px; padding: 0 2px; line-height: 1;
 }
 .searchClear:hover { color: var(--alerta); }
 
@@ -94,10 +117,7 @@
 .tdSec    { color: var(--texto-sec); font-size: 13px; }
 .tdPrecio { font-weight: 600; color: var(--azul); white-space: nowrap; }
 
-.tdActions {
-  white-space: nowrap;
-  text-align: right;
-}
+.tdActions { white-space: nowrap; text-align: right; }
 .actionBtn {
   background: none; border: none; cursor: pointer;
   color: var(--texto-sec);
@@ -107,6 +127,42 @@
 }
 .actionBtn:hover { background: var(--azul-light); color: var(--azul); }
 .actionDanger:hover { background: var(--alerta-light); color: var(--alerta); }
+
+/* ── Paginador ───────────────────────────────────────────────────────────── */
+.paginador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--borde);
+  background: var(--superficie-alt);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.paginadorCentro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--texto);
+}
+.paginadorTexto { color: var(--texto-sec); }
+.paginadorInput {
+  width: 56px;
+  text-align: center;
+  padding: 6px 8px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-xs);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+  transition: border-color var(--transition);
+}
+.paginadorInput:focus {
+  outline: none;
+  border-color: var(--naranja);
+  box-shadow: 0 0 0 2px rgba(224,123,0,0.1);
+}
 
 /* ── Loading ─────────────────────────────────────────────────────────────── */
 .loadingCenter {
@@ -124,7 +180,7 @@
   padding-top: 4px;
 }
 
-/* ── Confirmar eliminar ───────────────────────────────────────────────────── */
+/* ── Confirmar eliminar ──────────────────────────────────────────────────── */
 .confirmDelete { display: flex; flex-direction: column; gap: 12px; }
 .confirmSub { font-size: 13px; color: var(--texto-sec); }
 
@@ -133,4 +189,85 @@
   .hideM { display: none; }
   .searchBox { width: 180px; }
   .formRow { grid-template-columns: 1fr; }
+  .paginador { justify-content: center; }
+}
+
+/* ── Detalle de producto ──────────────────────────────────────────────────── */
+.detalle { display: flex; flex-direction: column; gap: 20px; }
+.detalleGrupo { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--borde); border-radius: var(--radio-sm); overflow: hidden; }
+.detalleGrupoTitulo {
+  font-size: 11px; font-weight: 700;
+  color: var(--azul); text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 8px 14px;
+  background: var(--azul-light);
+  border-bottom: 1px solid var(--borde);
+}
+.detalleCampo {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 11px 14px; gap: 16px;
+  border-bottom: 1px solid #F0EDE8;
+}
+.detalleCampo:last-child { border-bottom: none; }
+.detalleLabel {
+  font-size: 13px; color: var(--texto-sec); font-weight: 500;
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.detalleValor { font-size: 14px; font-weight: 600; color: var(--texto); text-align: right; }
+.detallePrecio { color: var(--azul); font-size: 15px; }
+.detalleSinDatos { font-size: 12px; color: var(--texto-sec); text-align: center; padding: 8px; }
+.rolTag {
+  font-size: 10px; font-weight: 700;
+  background: var(--naranja-light); color: var(--naranja);
+  padding: 1px 6px; border-radius: 20px;
+  border: 1px solid var(--naranja-border);
+}
+.rolTagCodigo {
+  font-size: 10px; font-weight: 700;
+  background: var(--azul-light); color: var(--azul);
+  padding: 1px 6px; border-radius: 20px;
+  border: 1px solid var(--azul-border);
+}
+
+/* ── Campos extra en formulario ──────────────────────────────────────────── */
+.camposExtraSection {
+  border: 1.5px solid var(--naranja-border);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+.camposExtraLabel {
+  font-size: 11px; font-weight: 700;
+  color: var(--naranja); text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 8px 14px;
+  background: var(--naranja-light);
+  border-bottom: 1px solid var(--naranja-border);
+}
+.camposExtraGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.campoExtraItem {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--borde);
+  border-right: 1px solid var(--borde);
+}
+.campoExtraItem:nth-child(even) { border-right: none; }
+.campoExtraItem:last-child, .campoExtraItem:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+.campoExtraEtiqueta { font-size: 12px; font-weight: 600; color: var(--texto); }
+.campoExtraRol { font-weight: 400; color: var(--naranja); }
+.campoExtraInput {
+  padding: 7px 10px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-xs);
+  font-size: 13px; font-family: inherit;
+  background: var(--superficie);
+  transition: border-color var(--transition);
+  width: 100%;
+}
+.campoExtraInput:focus { outline: none; border-color: var(--naranja); }
+
+@media (max-width: 480px) {
+  .camposExtraGrid { grid-template-columns: 1fr; }
+  .campoExtraItem { border-right: none; }
 }

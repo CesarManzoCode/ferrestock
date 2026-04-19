@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   Package, FileText, Upload, Users, Settings,
-  ChevronLeft, ChevronRight, Menu, X, LogOut
+  ChevronLeft, ChevronRight, Menu, X, LogOut, SlidersHorizontal
 } from 'lucide-react'
 import useAuthStore from '../../store/authStore'
 import styles from './Sidebar.module.css'
@@ -14,8 +14,9 @@ const NAV_ITEMS = [
 ]
 
 const CONFIG_ITEMS = [
-  { label: 'Usuarios',   path: '/usuarios',  Icon: Users },
-  { label: 'Mi cuenta',  path: '/cuenta',    Icon: Settings },
+  { label: 'Campos personalizados', path: '/campos',   Icon: SlidersHorizontal },
+  { label: 'Usuarios',              path: '/usuarios',  Icon: Users },
+  { label: 'Mi cuenta',             path: '/cuenta',    Icon: Settings },
 ]
 
 export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {

@@ -155,12 +155,14 @@ def importar_productos_desde_excel(
             if descripcion_col:
                 descripcion = str(fila_dict.get(descripcion_col, "") or "").strip() or None
 
-            # Campos extra
+            # Campos extra — usar el nombre_campo del mapeo, no el nombre de columna
             campos_extra = {}
             for col in campos_extra_cols:
                 val = fila_dict.get(col)
                 if val is not None:
-                    campos_extra[col] = val
+                    # mapeo[col] = nombre_campo (ej: "precio_iva"), si no existe usar col
+                    clave = mapeo.get(col, col)
+                    campos_extra[clave] = val
 
             productos.append({
                 "tenant_id": tenant_id,

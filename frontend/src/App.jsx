@@ -7,10 +7,12 @@ import { LoginPage, RegisterPage } from './pages/auth/AuthPages'
 import InventarioPage from './pages/inventario/InventarioPage'
 import CotizacionesPage from './pages/cotizaciones/CotizacionesPage'
 import ImportarPage from './pages/importar/ImportarPage'
+import CamposPage from './pages/campos/CamposPage'
+import UsuariosPage from './pages/usuarios/UsuariosPage'
+import CuentaPage from './pages/cuenta/CuentaPage'
 import SaLoginPage from './pages/superadmin/SaLoginPage'
 import SaDashboard from './pages/superadmin/SaDashboard'
 
-// ── Guards app principal ───────────────────────────────────────────────────
 function Privado({ children }) {
   const usuario = useAuthStore((s) => s.usuario)
   if (!usuario) return <Navigate to="/login" replace />
@@ -21,8 +23,6 @@ function Publico({ children }) {
   if (usuario) return <Navigate to="/inventario" replace />
   return children
 }
-
-// ── Guards superadmin ──────────────────────────────────────────────────────
 function SaPrivado({ children }) {
   const usuario = useSaStore((s) => s.usuario)
   if (!usuario) return <Navigate to="/superadmin/login" replace />
@@ -34,28 +34,14 @@ function SaPublico({ children }) {
   return children
 }
 
-function Placeholder({ titulo }) {
-  return (
-    <div style={{ padding: 40, textAlign: 'center', color: 'var(--texto-sec)' }}>
-      <h2 style={{ color: 'var(--texto)', marginBottom: 8 }}>{titulo}</h2>
-      <p>Próximamente disponible.</p>
-    </div>
-  )
-}
-
 export default function App() {
-  const inicializar = useAuthStore((s) => s.inicializar)
+  const inicializar   = useAuthStore((s) => s.inicializar)
   const saInicializar = useSaStore((s) => s.inicializar)
-
-  useEffect(() => {
-    inicializar()
-    saInicializar()
-  }, [inicializar, saInicializar])
+  useEffect(() => { inicializar(); saInicializar() }, [inicializar, saInicializar])
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* ── App principal ── */}
         <Route path="/login"    element={<Publico><LoginPage /></Publico>} />
         <Route path="/registro" element={<Publico><RegisterPage /></Publico>} />
         <Route path="/" element={<Privado><Layout /></Privado>}>
@@ -63,15 +49,12 @@ export default function App() {
           <Route path="inventario"   element={<InventarioPage />} />
           <Route path="cotizaciones" element={<CotizacionesPage />} />
           <Route path="importar"     element={<ImportarPage />} />
-          <Route path="usuarios"     element={<Placeholder titulo="Usuarios" />} />
-          <Route path="cuenta"       element={<Placeholder titulo="Mi cuenta" />} />
+          <Route path="campos"       element={<CamposPage />} />
+          <Route path="usuarios"     element={<UsuariosPage />} />
+          <Route path="cuenta"       element={<CuentaPage />} />
         </Route>
-
-        {/* ── Panel superadmin ── */}
         <Route path="/superadmin/login" element={<SaPublico><SaLoginPage /></SaPublico>} />
-        <Route path="/superadmin" element={<SaPrivado><SaDashboard /></SaPrivado>} />
-
-        {/* Fallback */}
+        <Route path="/superadmin"       element={<SaPrivado><SaDashboard /></SaPrivado>} />
         <Route path="*" element={<Navigate to="/inventario" replace />} />
       </Routes>
     </BrowserRouter>

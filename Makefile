@@ -3,7 +3,7 @@
         logs logs-backend logs-frontend \
         shell-backend shell-frontend shell-db \
         migrate migrate-create migrate-down \
-        create-admin set-superadmin \
+        create-admin set-superadmin normalizar-campos \
         up-prod down-prod restart-prod rebuild-prod deploy
 
 # ── Ayuda ──────────────────────────────────────────────────────────────────
@@ -37,6 +37,11 @@ help:
 	@echo "  USUARIOS:"
 	@echo "    make create-admin         Crear admin de ferretería"
 	@echo "    make set-superadmin       Asignar rol superadmin"
+	@echo ""
+	@echo "  UTILIDADES:"
+	@echo "    make normalizar-campos    Normalizar claves de campos extra en productos"
+	@echo "                             (usar si los productos importados no muestran"
+	@echo "                              sus campos personalizados correctamente)"
 	@echo ""
 	@echo "  PRODUCCIÓN:"
 	@echo "    make deploy               Deploy completo (build + migrate)"
@@ -111,8 +116,11 @@ create-admin:
 set-superadmin:
 	docker compose exec backend python scripts/set_superadmin.py
 
+# ── Utilidades ─────────────────────────────────────────────────────────────
+normalizar-campos:
+	docker compose exec backend python scripts/normalizar_campos_extra.py
+
 # ── Producción ─────────────────────────────────────────────────────────────
-# Deploy completo: reconstruye, levanta y migra
 deploy:
 	@echo "→ Construyendo imágenes..."
 	docker compose -f docker-compose.prod.yml build --no-cache

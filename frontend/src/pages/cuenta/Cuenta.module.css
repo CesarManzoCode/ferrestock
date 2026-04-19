@@ -1,0 +1,74 @@
+.page { display: flex; flex-direction: column; gap: 20px; max-width: 680px; }
+.cardBody { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Sección título ──────────────────────────────────────────────────────── */
+.seccionTitulo { display: flex; align-items: center; gap: 8px; }
+.seccionIcono  { color: var(--naranja); }
+
+/* ── Campo ───────────────────────────────────────────────────────────────── */
+.campo {
+  display: flex; flex-direction: column; gap: 5px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--borde);
+}
+.campo:last-child { border-bottom: none; padding-bottom: 0; }
+
+.campoLabel { font-size: 12px; font-weight: 700; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 0.5px; }
+.campoTexto { font-size: 14px; color: var(--texto); }
+.campoValor { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 15px; font-weight: 500; color: var(--texto); }
+.campoEdit  { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+.campoEdit > div { flex: 1; min-width: 200px; }
+
+.editarLink {
+  background: none; border: none; cursor: pointer;
+  color: var(--naranja); font-size: 13px; font-weight: 600;
+  padding: 0; text-decoration: underline;
+  font-family: inherit;
+}
+.editarLink:hover { color: var(--naranja-hover); }
+
+.tag {
+  font-size: 11px; font-weight: 600;
+  background: var(--fondo); color: var(--texto-sec);
+  padding: 2px 8px; border-radius: 20px;
+  border: 1px solid var(--borde);
+}
+.iconOk { color: var(--exito); flex-shrink: 0; }
+
+/* ── Rol badge ───────────────────────────────────────────────────────────── */
+.rolBadge {
+  font-size: 13px; font-weight: 600;
+  background: var(--azul-light); color: var(--azul);
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--azul-border);
+}
+
+/* ── Plan badge ──────────────────────────────────────────────────────────── */
+.planBadge {
+  display: inline-flex; align-items: center;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 13px; font-weight: 700;
+}
+.planActivo    { background: var(--exito-light);      color: var(--exito);      border: 1.5px solid var(--exito); }
+.planTrial     { background: var(--advertencia-light);color: var(--advertencia);border: 1.5px solid var(--naranja-border); }
+.planVencido   { background: var(--alerta-light);     color: var(--alerta);     border: 1.5px solid var(--alerta); }
+.planSuspendido{ background: #F0F0F0;                 color: var(--texto-sec);  border: 1.5px solid var(--borde); }
+
+/* ── Trial box ───────────────────────────────────────────────────────────── */
+.trialBox {
+  background: var(--naranja-light);
+  border: 1.5px solid var(--naranja-border);
+  border-radius: var(--radio-sm);
+  padding: 12px 16px;
+  font-size: 13px; color: var(--texto);
+  line-height: 1.5;
+}
+
+/* ── Contraseña ──────────────────────────────────────────────────────────── */
+.pwForm { display: flex; flex-direction: column; gap: 14px; }
+.pwRow  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+@media (max-width: 540px) {
+  .pwRow { grid-template-columns: 1fr; }
+  .campoEdit { flex-direction: column; }
+}
