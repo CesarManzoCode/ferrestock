@@ -60,3 +60,41 @@ def require_admin(
 CurrentUser = Annotated[Usuario, Depends(get_current_user)]
 AdminUser = Annotated[Usuario, Depends(require_admin)]
 DBSession = Annotated[Session, Depends(get_session)]
+
+
+def require_superadmin(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
+    session: Annotated[Session, Depends(get_session)],
+) -> Usuario:
+    """
+    Dependency independiente para superadmin — NO verifica tenant activo
+    porque el superadmin no pertenece a ningún tenant de ferretería.
+    """
+    token = credentials.credentials
+    payload = decode_token(token)
+
+    if not payload or payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+        )
+
+    user_id = payload.get("sub")
+    usuario = session.get(Usuario, int(user_id))
+
+    if not usuario or not usuario.activo:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no encontrado o inactivo",
+        )
+
+    if usuario.rol != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado",
+        )
+
+    return usuario
+
+
+SuperAdmin = Annotated[Usuario, Depends(require_superadmin)]

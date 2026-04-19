@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"   # expuesto solo en dev para conectar desde host
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -24,8 +24,9 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DEBUG: "true"
     volumes:
-      - ./backend:/app          # hot reload en dev
+      - ./backend:/app
       - pdf_storage:/app/pdfs
     ports:
       - "8000:8000"
@@ -34,15 +35,26 @@ services:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost/api/v1}
+    restart: unless-stopped
+    depends_on:
+      - backend
+
   nginx:
     image: nginx:alpine
     restart: unless-stopped
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - backend
+      - frontend
 
 volumes:
   postgres_data:

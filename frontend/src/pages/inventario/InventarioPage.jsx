@@ -19,18 +19,29 @@ const FORM_VACIO = { nombre: '', precio: '', existencias: '', descripcion: '' }
 
 // ── Formulario de producto ────────────────────────────────────────────────
 function FormProducto({ inicial, onGuardar, onCancelar, cargando, error }) {
-  const [form, setForm] = useState(inicial || FORM_VACIO)
+  const [form, setForm] = useState(inicial ? {
+    ...inicial,
+    precio: inicial.precio ?? '',
+    existencias: inicial.existencias ?? 0,
+    descripcion: inicial.descripcion ?? '',
+  } : FORM_VACIO)
 
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    const precio = parseFloat(String(form.precio).replace(',', '.'))
+    const existencias = parseFloat(String(form.existencias).replace(',', '.'))
+    if (isNaN(precio) || precio < 0) {
+      alert('El precio debe ser un número válido mayor o igual a 0')
+      return
+    }
     onGuardar({
       nombre: form.nombre.trim(),
-      precio: parseFloat(form.precio),
-      existencias: parseFloat(form.existencias) || 0,
-      descripcion: form.descripcion.trim() || null,
+      precio,
+      existencias: isNaN(existencias) ? 0 : existencias,
+      descripcion: form.descripcion?.trim() || null,
     })
   }
 
@@ -43,28 +54,24 @@ function FormProducto({ inicial, onGuardar, onCancelar, cargando, error }) {
         placeholder="Ej: Tornillo hexagonal 1/4 x 1 pulg"
         value={form.nombre}
         onChange={handleChange}
-        required
         autoFocus
       />
       <div className={styles.formRow}>
         <Input
           label="Precio ($) *"
           name="precio"
-          type="number"
+          type="text"
+          inputMode="decimal"
           placeholder="0.00"
-          min="0"
-          step="0.01"
           value={form.precio}
           onChange={handleChange}
-          required
         />
         <Input
           label="Existencias"
           name="existencias"
-          type="number"
+          type="text"
+          inputMode="decimal"
           placeholder="0"
-          min="0"
-          step="any"
           value={form.existencias}
           onChange={handleChange}
         />

@@ -154,3 +154,27 @@
   .hideM { display: none; }
   .formRow { grid-template-columns: 1fr; }
 }
+
+/* ── Botón PDF con texto ─────────────────────────────────────────────────── */
+.actionBtnPdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--naranja-light);
+  border: 1.5px solid var(--naranja-border);
+  color: var(--naranja);
+  padding: 5px 10px;
+  border-radius: var(--radio-xs);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+  font-family: inherit;
+}
+.actionBtnPdf:hover:not(:disabled) {
+  background: var(--naranja);
+  color: white;
+  border-color: var(--naranja);
+}
+.actionBtnPdf:disabled { opacity: 0.6; cursor: not-allowed; }

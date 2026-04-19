@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 from typing import Optional
+import json
 
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File, status
+from sqlalchemy import delete as sql_delete
 from sqlmodel import select
 
 from app.core.deps import AdminUser, CurrentUser, DBSession
@@ -18,7 +20,7 @@ def listar_productos(
     current_user: CurrentUser,
     session: DBSession,
     skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=50, le=200),
+    limit: int = Query(default=200, le=500),
     solo_activos: bool = True,
 ):
     query = select(Producto).where(Producto.tenant_id == current_user.tenant_id)
@@ -40,8 +42,7 @@ def buscar(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="La búsqueda debe tener al menos 2 caracteres",
         )
-    resultados = buscar_productos(q, current_user.tenant_id, session, limite)
-    return resultados
+    return buscar_productos(q, current_user.tenant_id, session, limite)
 
 
 @router.get("/{producto_id}", response_model=ProductoRead)
@@ -53,7 +54,8 @@ def obtener_producto(producto_id: int, current_user: CurrentUser, session: DBSes
 
 
 @router.post("", response_model=ProductoRead, status_code=status.HTTP_201_CREATED)
-def crear_producto(data: ProductoCreate, current_user: AdminUser, session: DBSession):
+def crear_producto(data: ProductoCreate, current_user: CurrentUser, session: DBSession):
+    # Usar CurrentUser en lugar de AdminUser para que empleados también puedan agregar
     producto = Producto(**data.model_dump(), tenant_id=current_user.tenant_id)
     session.add(producto)
     session.commit()
@@ -63,7 +65,7 @@ def crear_producto(data: ProductoCreate, current_user: AdminUser, session: DBSes
 
 @router.patch("/{producto_id}", response_model=ProductoRead)
 def actualizar_producto(
-    producto_id: int, data: ProductoUpdate, current_user: AdminUser, session: DBSession
+    producto_id: int, data: ProductoUpdate, current_user: CurrentUser, session: DBSession
 ):
     producto = session.get(Producto, producto_id)
     if not producto or producto.tenant_id != current_user.tenant_id:
@@ -81,11 +83,11 @@ def actualizar_producto(
 
 
 @router.delete("/{producto_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_producto(producto_id: int, current_user: AdminUser, session: DBSession):
+def eliminar_producto(producto_id: int, current_user: CurrentUser, session: DBSession):
     producto = session.get(Producto, producto_id)
     if not producto or producto.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
-    # Soft delete
+    # Soft delete — no rompe FK con cotizacion_items
     producto.activo = False
     producto.actualizado_en = datetime.now(timezone.utc)
     session.add(producto)
@@ -96,11 +98,10 @@ def eliminar_producto(producto_id: int, current_user: AdminUser, session: DBSess
 
 @router.post("/importar/preview")
 async def preview_excel(
-    current_user: AdminUser,
+    current_user: CurrentUser,
     file: UploadFile = File(...),
     fila_inicio: int = Query(default=1, ge=1),
 ):
-    """Paso 1: subir Excel y obtener columnas + sugerencias de mapeo."""
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -112,16 +113,13 @@ async def preview_excel(
 
 @router.post("/importar/confirmar")
 async def confirmar_importacion(
-    current_user: AdminUser,
+    current_user: CurrentUser,
     session: DBSession,
     file: UploadFile = File(...),
     fila_inicio: int = Query(default=1, ge=1),
     mapeo: str = Query(..., description='JSON: {"col_excel": "campo_ferrestock"}'),
     campos_extra: Optional[str] = Query(default=None, description='JSON: ["col1", "col2"]'),
 ):
-    """Paso 2: confirmar mapeo e importar productos."""
-    import json
-
     try:
         mapeo_dict: dict[str, str] = json.loads(mapeo)
     except Exception:
@@ -142,12 +140,8 @@ async def confirmar_importacion(
     if not productos_data:
         return {"importados": 0, "errores": errores}
 
-    # Inserción en bulk
     productos_objs = [Producto(**p) for p in productos_data]
     session.add_all(productos_objs)
     session.commit()
 
-    return {
-        "importados": len(productos_objs),
-        "errores": errores,
-    }
+    return {"importados": len(productos_objs), "errores": errores}

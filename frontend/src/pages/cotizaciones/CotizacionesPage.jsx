@@ -25,7 +25,7 @@ function fmtFecha(iso) {
   })
 }
 
-// ── Buscador de productos dentro del formulario ───────────────────────────
+// ── Buscador de productos ─────────────────────────────────────────────────
 function BuscadorProducto({ onSeleccionar }) {
   const [q, setQ] = useState('')
   const [resultados, setResultados] = useState([])
@@ -79,18 +79,16 @@ function BuscadorProducto({ onSeleccionar }) {
 
 // ── Formulario nueva cotización ───────────────────────────────────────────
 function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
-  const [cliente, setCliente] = useState({ nombre: '', telefono: '', email: '' })
+  const [cliente, setCliente] = useState({ nombre: '', telefono: '' })
   const [notas, setNotas] = useState('')
   const [items, setItems] = useState([])
 
   const agregarProducto = (p) => {
     setItems((prev) => {
       const existe = prev.find((i) => i.producto_id === p.id)
-      if (existe) {
-        return prev.map((i) =>
-          i.producto_id === p.id ? { ...i, cantidad: i.cantidad + 1 } : i
-        )
-      }
+      if (existe) return prev.map((i) =>
+        i.producto_id === p.id ? { ...i, cantidad: i.cantidad + 1 } : i
+      )
       return [...prev, {
         producto_id: p.id,
         nombre_producto: p.nombre,
@@ -100,11 +98,8 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
     })
   }
 
-  const actualizarItem = (idx, campo, valor) => {
-    setItems((prev) =>
-      prev.map((item, i) => i === idx ? { ...item, [campo]: valor } : item)
-    )
-  }
+  const actualizarItem = (idx, campo, valor) =>
+    setItems((prev) => prev.map((item, i) => i === idx ? { ...item, [campo]: valor } : item))
 
   const quitarItem = (idx) =>
     setItems((prev) => prev.filter((_, i) => i !== idx))
@@ -118,7 +113,6 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
     onGuardar({
       cliente_nombre: cliente.nombre || null,
       cliente_telefono: cliente.telefono || null,
-      cliente_email: cliente.email || null,
       notas: notas || null,
       items: items.map((i) => ({
         ...i,
@@ -132,7 +126,6 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
     <form onSubmit={handleSubmit} className={styles.form}>
       {error && <Alert variant="error">{error}</Alert>}
 
-      {/* Datos del cliente */}
       <div className={styles.seccion}>
         <p className={styles.seccionLabel}>Datos del cliente (opcional)</p>
         <div className={styles.formRow}>
@@ -151,7 +144,6 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
         </div>
       </div>
 
-      {/* Productos */}
       <div className={styles.seccion}>
         <p className={styles.seccionLabel}>Productos *</p>
         <BuscadorProducto onSeleccionar={agregarProducto} />
@@ -172,22 +164,14 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
                 <tr key={idx}>
                   <td className={styles.itemNombre}>{item.nombre_producto}</td>
                   <td>
-                    <input
-                      type="number"
-                      className={styles.itemInput}
-                      value={item.precio_unitario}
-                      min="0"
-                      step="0.01"
+                    <input type="number" className={styles.itemInput}
+                      value={item.precio_unitario} min="0" step="0.01"
                       onChange={(e) => actualizarItem(idx, 'precio_unitario', e.target.value)}
                     />
                   </td>
                   <td>
-                    <input
-                      type="number"
-                      className={styles.itemInput}
-                      value={item.cantidad}
-                      min="1"
-                      step="any"
+                    <input type="number" className={styles.itemInput}
+                      value={item.cantidad} min="1" step="any"
                       onChange={(e) => actualizarItem(idx, 'cantidad', e.target.value)}
                     />
                   </td>
@@ -195,11 +179,7 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
                     {fmtPeso(Number(item.precio_unitario) * Number(item.cantidad))}
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className={styles.removeBtn}
-                      onClick={() => quitarItem(idx)}
-                    >
+                    <button type="button" className={styles.removeBtn} onClick={() => quitarItem(idx)}>
                       <Trash2 size={14} />
                     </button>
                   </td>
@@ -216,7 +196,6 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
         )}
       </div>
 
-      {/* Total */}
       {items.length > 0 && (
         <div className={styles.totalRow}>
           <span className={styles.totalLabel}>Total</span>
@@ -224,7 +203,6 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
         </div>
       )}
 
-      {/* Notas */}
       <Input
         label="Notas"
         placeholder="Condiciones, vigencia, observaciones..."
@@ -234,12 +212,7 @@ function FormCotizacion({ onGuardar, onCancelar, cargando, error }) {
 
       <div className={styles.formActions}>
         <Button type="button" variant="outline" onClick={onCancelar}>Cancelar</Button>
-        <Button
-          type="submit"
-          variant="primary"
-          loading={cargando}
-          disabled={items.length === 0}
-        >
+        <Button type="submit" variant="primary" loading={cargando} disabled={items.length === 0}>
           Crear cotización
         </Button>
       </div>
@@ -253,6 +226,7 @@ export default function CotizacionesPage() {
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [descargando, setDescargando] = useState(null)
+  const [eliminando, setEliminando] = useState(false)
   const [error, setError] = useState(null)
   const [formError, setFormError] = useState(null)
   const [modalNueva, setModalNueva] = useState(false)
@@ -260,6 +234,7 @@ export default function CotizacionesPage() {
 
   const cargar = useCallback(async () => {
     setCargando(true)
+    setError(null)
     try {
       const { data } = await cotizacionesService.listar({ limit: 100 })
       setCotizaciones(data)
@@ -288,6 +263,7 @@ export default function CotizacionesPage() {
 
   const handleDescargarPdf = async (id) => {
     setDescargando(id)
+    setError(null)
     try {
       const { data } = await cotizacionesService.generarPdf(id)
       const url = URL.createObjectURL(new Blob([data], { type: 'application/pdf' }))
@@ -297,22 +273,25 @@ export default function CotizacionesPage() {
       a.click()
       URL.revokeObjectURL(url)
     } catch {
-      setError('No se pudo generar el PDF.')
+      setError('No se pudo generar el PDF. Intenta de nuevo.')
     } finally {
       setDescargando(null)
     }
   }
 
   const handleEliminar = async () => {
-    setGuardando(true)
+    if (!confirmarEliminar) return
+    setEliminando(true)
+    setError(null)
     try {
       await cotizacionesService.eliminar(confirmarEliminar.id)
       setCotizaciones((prev) => prev.filter((c) => c.id !== confirmarEliminar.id))
       setConfirmarEliminar(null)
-    } catch {
-      setError('No se pudo eliminar la cotización.')
+    } catch (err) {
+      setError(err.response?.data?.detail || 'No se pudo eliminar la cotización.')
+      setConfirmarEliminar(null)
     } finally {
-      setGuardando(false)
+      setEliminando(false)
     }
   }
 
@@ -369,10 +348,8 @@ export default function CotizacionesPage() {
                   const bd = ESTADO_BADGE[c.estado] || ESTADO_BADGE.borrador
                   return (
                     <tr key={c.id}>
-                      <td className={styles.tdFolio}>
-                        #{String(c.id).padStart(4, '0')}
-                      </td>
-                      <td>{c.cliente_nombre || <span className={styles.tdSec}>Cliente general</span>}</td>
+                      <td className={styles.tdFolio}>#{String(c.id).padStart(4, '0')}</td>
+                      <td>{c.cliente_nombre || <span className={styles.tdSec}>General</span>}</td>
                       <td className={`${styles.tdSec} ${styles.hideM}`}>
                         {c.items?.length ?? 0} producto(s)
                       </td>
@@ -383,15 +360,16 @@ export default function CotizacionesPage() {
                       </td>
                       <td className={styles.tdActions}>
                         <button
-                          className={styles.actionBtn}
+                          className={styles.actionBtnPdf}
                           onClick={() => handleDescargarPdf(c.id)}
                           disabled={descargando === c.id}
                           title="Descargar PDF"
                         >
                           {descargando === c.id
                             ? <Spinner size={14} />
-                            : <Download size={15} />
+                            : <Download size={14} />
                           }
+                          <span>{descargando === c.id ? 'Generando...' : 'Descargar PDF'}</span>
                         </button>
                         <button
                           className={`${styles.actionBtn} ${styles.actionDanger}`}
@@ -411,12 +389,7 @@ export default function CotizacionesPage() {
       </Card>
 
       {/* Modal nueva cotización */}
-      <Modal
-        open={modalNueva}
-        onClose={() => setModalNueva(false)}
-        title="Nueva cotización"
-        width={640}
-      >
+      <Modal open={modalNueva} onClose={() => setModalNueva(false)} title="Nueva cotización" width={640}>
         <FormCotizacion
           onGuardar={handleCrear}
           onCancelar={() => setModalNueva(false)}
@@ -439,9 +412,16 @@ export default function CotizacionesPage() {
               <strong>#{String(confirmarEliminar.id).padStart(4, '0')}</strong>
               {confirmarEliminar.cliente_nombre ? ` de ${confirmarEliminar.cliente_nombre}` : ''}?
             </p>
+            <p style={{ fontSize: 13, color: 'var(--texto-sec)' }}>
+              Esta acción no se puede deshacer.
+            </p>
             <div className={styles.formActions}>
-              <Button variant="outline" onClick={() => setConfirmarEliminar(null)}>Cancelar</Button>
-              <Button variant="danger" loading={guardando} onClick={handleEliminar}>Eliminar</Button>
+              <Button variant="outline" onClick={() => setConfirmarEliminar(null)}>
+                Cancelar
+              </Button>
+              <Button variant="danger" loading={eliminando} onClick={handleEliminar}>
+                Sí, eliminar
+              </Button>
             </div>
           </div>
         )}

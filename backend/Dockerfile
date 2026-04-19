@@ -1,14 +1,9 @@
 FROM python:3.12-slim
 
-# Dependencias del sistema para WeasyPrint y psycopg2
+# Solo gcc y libpq para psycopg2. Reportlab no necesita dependencias de sistema.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
-    libpango-1.0-0 \
-    libpangoft2-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libffi-dev \
-    libcairo2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -18,7 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Usuario no-root por seguridad
 RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 

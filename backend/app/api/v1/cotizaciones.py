@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import FileResponse
+from sqlalchemy import delete as sql_delete
 from sqlmodel import select
 
 from app.core.deps import AdminUser, CurrentUser, DBSession
@@ -42,7 +43,7 @@ def listar_cotizaciones(
     current_user: CurrentUser,
     session: DBSession,
     skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=50, le=200),
+    limit: int = Query(default=100, le=200),
 ):
     cotizaciones = session.exec(
         select(Cotizacion)
@@ -63,11 +64,7 @@ def listar_cotizaciones(
 
 
 @router.get("/{cotizacion_id}", response_model=CotizacionRead)
-def obtener_cotizacion(
-    cotizacion_id: int,
-    current_user: CurrentUser,
-    session: DBSession,
-):
+def obtener_cotizacion(cotizacion_id: int, current_user: CurrentUser, session: DBSession):
     cotizacion = session.get(Cotizacion, cotizacion_id)
     if not cotizacion or cotizacion.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cotización no encontrada")
@@ -75,23 +72,17 @@ def obtener_cotizacion(
     items = session.exec(
         select(CotizacionItem).where(CotizacionItem.cotizacion_id == cotizacion_id)
     ).all()
-
     return _cotizacion_a_schema(cotizacion, items)
 
 
 @router.post("", response_model=CotizacionRead, status_code=status.HTTP_201_CREATED)
-def crear_cotizacion(
-    data: CotizacionCreate,
-    current_user: CurrentUser,
-    session: DBSession,
-):
+def crear_cotizacion(data: CotizacionCreate, current_user: CurrentUser, session: DBSession):
     if not data.items:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="La cotización debe tener al menos un producto",
         )
 
-    # Calcular subtotales y total
     items_data = []
     total = 0.0
     for item in data.items:
@@ -116,7 +107,7 @@ def crear_cotizacion(
         creado_por_id=current_user.id,
     )
     session.add(cotizacion)
-    session.flush()  # necesitamos cotizacion.id para los items
+    session.flush()
 
     items_objs = [CotizacionItem(cotizacion_id=cotizacion.id, **i) for i in items_data]
     session.add_all(items_objs)
@@ -128,10 +119,7 @@ def crear_cotizacion(
 
 @router.patch("/{cotizacion_id}/estado", response_model=CotizacionRead)
 def cambiar_estado(
-    cotizacion_id: int,
-    estado: str,
-    current_user: CurrentUser,
-    session: DBSession,
+    cotizacion_id: int, estado: str, current_user: CurrentUser, session: DBSession
 ):
     estados_validos = {"borrador", "enviada", "aceptada", "cancelada"}
     if estado not in estados_validos:
@@ -157,11 +145,7 @@ def cambiar_estado(
 
 
 @router.post("/{cotizacion_id}/pdf")
-def generar_pdf(
-    cotizacion_id: int,
-    current_user: CurrentUser,
-    session: DBSession,
-):
+def generar_pdf(cotizacion_id: int, current_user: CurrentUser, session: DBSession):
     cotizacion = session.get(Cotizacion, cotizacion_id)
     if not cotizacion or cotizacion.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cotización no encontrada")
@@ -204,21 +188,16 @@ def generar_pdf(
 
 
 @router.delete("/{cotizacion_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_cotizacion(
-    cotizacion_id: int,
-    current_user: AdminUser,
-    session: DBSession,
-):
+def eliminar_cotizacion(cotizacion_id: int, current_user: AdminUser, session: DBSession):
     cotizacion = session.get(Cotizacion, cotizacion_id)
     if not cotizacion or cotizacion.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cotización no encontrada")
 
-    # Eliminar items primero por FK
-    items = session.exec(
-        select(CotizacionItem).where(CotizacionItem.cotizacion_id == cotizacion_id)
-    ).all()
-    for item in items:
-        session.delete(item)
-
-    session.delete(cotizacion)
+    # Borrar items con SQL directo para garantizar el orden antes del commit
+    session.exec(
+        sql_delete(CotizacionItem).where(CotizacionItem.cotizacion_id == cotizacion_id)
+    )
+    session.exec(
+        sql_delete(Cotizacion).where(Cotizacion.id == cotizacion_id)
+    )
     session.commit()
